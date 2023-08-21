@@ -3,9 +3,9 @@
 /**
  * Creates an instance of Line
  *
- * @constructor
+ * @class
  * @this {Line}
- * @param {Number} Maximum width this line can have
+ * @param {number} Maximum width this line can have
  */
 function Line(maxWidth) {
 	this.maxWidth = maxWidth;
@@ -76,7 +76,8 @@ Line.prototype.getAvailableWidth = function () {
 
 /**
  * Returns line height
- * @return {Number}
+ *
+ * @returns {number}
  */
 Line.prototype.getHeight = function () {
 	var max = 0;

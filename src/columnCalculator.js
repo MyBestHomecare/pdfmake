@@ -126,6 +126,7 @@ function measureMinMax(columns) {
 
 /**
  * Calculates column widths
+ *
  * @private
  */
 module.exports = {

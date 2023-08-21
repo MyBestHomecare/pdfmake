@@ -31,8 +31,8 @@ function addAll(target, otherArray) {
  * Creates an instance of LayoutBuilder - layout engine which turns document-definition-object
  * into a set of pages, lines, inlines and vectors ready to be rendered into a PDF
  *
- * @param {Object} pageSize - an object defining page width and height
- * @param {Object} pageMargins - an object defining top, left, right and bottom margins
+ * @param {object} pageSize - an object defining page width and height
+ * @param {object} pageMargins - an object defining top, left, right and bottom margins
  */
 function LayoutBuilder(pageSize, pageMargins, imageMeasure, svgMeasure) {
 	this.pageSize = pageSize;
@@ -51,11 +51,11 @@ LayoutBuilder.prototype.registerTableLayouts = function (tableLayouts) {
  * Executes layout engine on document-definition-object and creates an array of pages
  * containing positioned Blocks, Lines and inlines
  *
- * @param {Object} docStructure document-definition-object
- * @param {Object} fontProvider font provider
- * @param {Object} styleDictionary dictionary with style definitions
- * @param {Object} defaultStyle default style definition
- * @return {Array} an array of pages
+ * @param {object} docStructure document-definition-object
+ * @param {object} fontProvider font provider
+ * @param {object} styleDictionary dictionary with style definitions
+ * @param {object} defaultStyle default style definition
+ * @returns {Array} an array of pages
  */
 LayoutBuilder.prototype.layoutDocument = function (docStructure, fontProvider, styleDictionary, defaultStyle, background, header, footer, images, watermark, pageBreakBeforeFct) {
 

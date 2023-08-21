@@ -30,8 +30,9 @@ function DocMeasure(fontProvider, styleDictionary, defaultStyle, imageMeasure, s
 /**
  * Measures all nodes and sets min/max-width properties required for the second
  * layout-pass.
- * @param  {Object} docStructure document-definition-object
- * @return {Object}              document-measurement-object
+ *
+ * @param  {object} docStructure document-definition-object
+ * @returns {object}              document-measurement-object
  */
 DocMeasure.prototype.measureDocument = function (docStructure) {
 	return this.measureNode(docStructure);
