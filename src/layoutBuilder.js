@@ -513,9 +513,11 @@ LayoutBuilder.prototype.processColumns = function (columnNode) {
 
 LayoutBuilder.prototype.processRow = function (columns, widths, gaps, tableBody, tableRow, height) {
 	var self = this;
-	var pageBreaks = [], positions = [];
+	var pageBreaks = [], columnBreaks = [], positions = [];
 
-	this.tracker.auto('pageChanged', storePageBreakData, function () {
+	// FIXME: Currently the `TraversalTracker.auto` method only supports ONE event and ONE callback, maybe expand to add support for multiple events and callbacks
+	//this.tracker.auto('pageChanged', storePageBreakData, function () {
+	this.tracker.auto('columnChanged', storeColumnBreakData, function () {
 		widths = widths || columns;
 
 		self.writer.context().beginColumnGroup();
@@ -544,7 +546,11 @@ LayoutBuilder.prototype.processRow = function (columns, widths, gaps, tableBody,
 		self.writer.context().completeColumnGroup(height);
 	});
 
-	return { pageBreaks: pageBreaks, positions: positions };
+	return { pageBreaks: pageBreaks, positions: positions, columnBreaks: columnBreaks };
+
+	function storeColumnBreakData(data) {
+		columnBreaks.push(data);
+	}
 
 	function storePageBreakData(data) {
 		var pageDesc;
@@ -653,7 +659,7 @@ LayoutBuilder.prototype.processTable = function (tableNode) {
 		var result = this.processRow(tableNode.table.body[i], tableNode.table.widths, tableNode._offsets.offsets, tableNode.table.body, i, height);
 		addAll(tableNode.positions, result.positions);
 
-		processor.endRow(i, this.writer, result.pageBreaks);
+		processor.endRow(i, this.writer, result.pageBreaks, result.columnBreaks);
 	}
 
 	processor.endTable(this.writer);

@@ -22,8 +22,37 @@ function PageElementWriter(context, tracker) {
 function fitOnPage(self, addFct) {
 	var position = addFct(self);
 	if (!position) {
-		self.moveToNextPage();
-		position = addFct(self);
+		// TODO: Swap the hardcoded boolean check below with an option flag inside columns
+		// eslint-disable-next-line no-constant-condition
+		if (true) {
+			if (!self.writer.context.snapshots.at(-1).overflowed) {
+
+				// BUG: Only works with table columns
+				self.moveToNextColumn();
+				
+				position = addFct(self);
+			} else {
+				position = addFct(self);
+			}
+		}
+
+
+		if (!position) {
+			while (self.writer.context.snapshots.at(-1).overflowed) {
+				var popped = self.writer.context.snapshots.pop();
+
+				var snap = self.writer.context.snapshots.at(-1);
+				self.writer.context.x = snap.x;
+				self.writer.context.y = snap.y;
+				self.writer.context.availableHeight = snap.availableHeight;
+				self.writer.context.availableWidth = popped.availableWidth;
+				self.writer.context.lastColumnWidth = snap.lastColumnWidth;
+				self.writer.context.endingCell = snap.endingCell;
+				//self.writer.context.page = snap.page;
+			}
+			self.moveToNextPage();
+			position = addFct(self);
+		}
 	}
 	return position;
 }
@@ -73,6 +102,32 @@ PageElementWriter.prototype.addFragment = function (fragment, useBlockXOffset, u
 		this.moveToNextPage();
 		this.writer.addFragment(fragment, useBlockXOffset, useBlockYOffset, dontUpdateContextPosition);
 	}
+};
+
+PageElementWriter.prototype.moveToNextColumn = function () {
+	var nextColumn = this.writer.context.moveToNextColumn();
+
+	this.repeatables.forEach(function (rep) {
+		rep.xOffset = nextColumn.containerX;
+		rep.yOffset = nextColumn.containerY;
+		// FIXME: This number is currently set based on limited trial and error. Try to set it dynamically.
+		rep.height -= 1;
+		if (isUndefined(rep.insertedOnPages[this.writer.context.page])) {
+			// FIXME: Make sure the line below can be removed safely without affecting the functionality of repeatables such as table header rows.
+			//rep.insertedOnPages[this.writer.context.page] = true;
+			this.writer.addFragment(rep, true, true);
+		} else {
+			this.writer.context.moveDown(rep.height);
+		}
+	}, this);
+
+	this.writer.tracker.emit('columnChanged', {
+		containerX: nextColumn.containerX,
+		containerY: nextColumn.containerY,
+		contentX: nextColumn.contentX,
+		contentY: nextColumn.contentY,
+		prevY: nextColumn.prevY,
+	});
 };
 
 PageElementWriter.prototype.moveToNextPage = function (pageOrientation) {

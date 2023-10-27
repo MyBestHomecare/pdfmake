@@ -337,7 +337,7 @@ TableProcessor.prototype.endTable = function (writer) {
 	}
 };
 
-TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks) {
+TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, columnBreaks) {
 	var l, i;
 	var self = this;
 	writer.tracker.stopTracking('pageChanged', this.rowCallback);
@@ -351,15 +351,21 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks) {
 
 	var ys = [];
 
-	var hasBreaks = pageBreaks && pageBreaks.length > 0;
+	var hasColumnBreaks = columnBreaks && columnBreaks.length > 0;
+	var hasPageBreaks = pageBreaks && pageBreaks.length > 0;
 	var body = this.tableNode.table.body;
 
 	ys.push({
 		y0: this.rowTopY,
-		page: hasBreaks ? pageBreaks[0].prevPage : endingPage
+		page: hasPageBreaks ? pageBreaks[0].prevPage : endingPage
 	});
 
-	if (hasBreaks) {
+	if (hasColumnBreaks) {
+		ys[ys.length - 1].y1 = columnBreaks[0].prevY;
+		ys.push({ y0: columnBreaks[0][this.headerRows > 0 ? 'contentY' : 'containerY'], page: ys[0].page });
+	}
+
+	if (hasPageBreaks) {
 		for (i = 0, l = pageBreaks.length; i < l; i++) {
 			var pageBreak = pageBreaks[i];
 			ys[ys.length - 1].y1 = pageBreak.prevY;
