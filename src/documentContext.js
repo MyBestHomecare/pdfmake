@@ -62,6 +62,8 @@ DocumentContext.prototype.beginColumn = function (width, offset, endingCell) {
 	this.availableHeight = saved.availableHeight;
 
 	this.lastColumnWidth = width;
+	var contextWidthOverflow = this.x > this.snapshots[0].availableWidth;
+	if (contextWidthOverflow) console.log({ contextWidthOverflow })
 };
 
 DocumentContext.prototype.calculateBottomMost = function (destContext) {
