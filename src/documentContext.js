@@ -95,7 +95,7 @@ DocumentContext.prototype.saveContextInEndingCell = function (endingCell) {
 
 DocumentContext.prototype.completeColumnGroup = function (height) {
 	var saved = this.snapshots.pop();
-	if (saved.overflowed) this.snapshots.pop();
+	// if (saved.overflowed) this.snapshots.pop();
 
 	this.calculateBottomMost(saved);
 
