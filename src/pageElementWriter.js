@@ -21,39 +21,50 @@ function PageElementWriter(context, tracker) {
 
 function fitOnPage(self, addFct) {
 	var position = addFct(self);
+	const sneakyColumn = true;
 	if (!position) {
-		// TODO: Swap the hardcoded boolean check below with an option flag inside columns
-		// eslint-disable-next-line no-constant-condition
-		if (true) {
-			if (!self.writer.context.snapshots.at(-1).overflowed) {
-
-				// BUG: Only works with table columns
-				self.moveToNextColumn();
-				
-				position = addFct(self);
-			} else {
-				position = addFct(self);
-			}
-		}
-
-
-		if (!position) {
-			while (self.writer.context.snapshots.at(-1).overflowed) {
-				var popped = self.writer.context.snapshots.pop();
-
-				var snap = self.writer.context.snapshots.at(-1);
-				self.writer.context.x = snap.x;
-				self.writer.context.y = snap.y;
-				self.writer.context.availableHeight = snap.availableHeight;
-				self.writer.context.availableWidth = popped.availableWidth;
-				self.writer.context.lastColumnWidth = snap.lastColumnWidth;
-				self.writer.context.endingCell = snap.endingCell;
-				//self.writer.context.page = snap.page;
-			}
+		if (sneakyColumn) {
+			self.moveToNextColumn();
+			position = addFct(self);
+		} else {
 			self.moveToNextPage();
 			position = addFct(self);
 		}
 	}
+
+	// if (!position) {
+	// 	// TODO: Swap the hardcoded boolean check below with an option flag inside columns
+	// 	// eslint-disable-next-line no-constant-condition
+	// 	if (false) {
+	// 		if (!self.writer.context.snapshots.at(-1).overflowed) {
+
+	// 			// BUG: Only works with table columns
+	// 			self.moveToNextColumn();
+
+	// 			position = addFct(self);
+	// 		} else {
+	// 			position = addFct(self);
+	// 		}
+	// 	}
+
+
+	// 	if (!position) {
+	// 		// while (self.writer.context.snapshots.at(-1).overflowed) {
+	// 		// 	var popped = self.writer.context.snapshots.pop();
+
+	// 		// 	var snap = self.writer.context.snapshots.at(-1);
+	// 		// 	self.writer.context.x = snap.x;
+	// 		// 	self.writer.context.y = snap.y;
+	// 		// 	self.writer.context.availableHeight = snap.availableHeight;
+	// 		// 	self.writer.context.availableWidth = popped.availableWidth;
+	// 		// 	self.writer.context.lastColumnWidth = snap.lastColumnWidth;
+	// 		// 	self.writer.context.endingCell = snap.endingCell;
+	// 		// 	//self.writer.context.page = snap.page;
+	// 		// }
+	// 		self.moveToNextPage();
+	// 		position = addFct(self);
+	// 	}
+	// }
 	return position;
 }
 
