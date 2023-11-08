@@ -518,12 +518,16 @@ LayoutBuilder.prototype.processRow = function (columns, widths, gaps, tableBody,
 	this.tracker.auto('pageChanged', storePageBreakData, function () {
 		widths = widths || columns;
 
+		var pageAvailableWidth = self.writer.context().availableWidth;
 		self.writer.context().beginColumnGroup();
 
 		for (var i = 0, l = columns.length; i < l; i++) {
 			var column = columns[i];
 			var width = widths[i]._calcWidth;
 			var leftOffset = colLeftOffset(i);
+			var context = self.writer.context();
+			var widthOverflow = context.x + width > pageAvailableWidth
+			if (widthOverflow) console.log({ widthOverflow })
 
 			if (column.colSpan && column.colSpan > 1) {
 				for (var j = 1; j < column.colSpan; j++) {
