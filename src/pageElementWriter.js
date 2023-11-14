@@ -124,28 +124,28 @@ PageElementWriter.prototype.moveToNextColumn = function () {
 
 	var nextColumn = this.writer.context.moveToNextColumn();
 	if (nextColumn == false) return nextColumn;
+	
+	// this.repeatables.forEach(function (rep) {
+	// 	rep.xOffset = nextColumn.containerX;
+	// 	rep.yOffset = nextColumn.containerY;
+	// 	// FIXME: This number is currently set based on limited trial and error. Try to set it dynamically.
+	// 	rep.height -= 1;
+	// 	if (isUndefined(rep.insertedOnPages[this.writer.context.page])) {
+	// 		// FIXME: Make sure the line below can be removed safely without affecting the functionality of repeatables such as table header rows.
+	// 		//rep.insertedOnPages[this.writer.context.page] = true;
+	// 		this.writer.addFragment(rep, true, true);
+	// 	} else {
+	// 		this.writer.context.moveDown(rep.height);
+	// 	}
+	// }, this);
 
-	this.repeatables.forEach(function (rep) {
-		rep.xOffset = nextColumn.containerX;
-		rep.yOffset = nextColumn.containerY;
-		// FIXME: This number is currently set based on limited trial and error. Try to set it dynamically.
-		rep.height -= 1;
-		if (isUndefined(rep.insertedOnPages[this.writer.context.page])) {
-			// FIXME: Make sure the line below can be removed safely without affecting the functionality of repeatables such as table header rows.
-			//rep.insertedOnPages[this.writer.context.page] = true;
-			this.writer.addFragment(rep, true, true);
-		} else {
-			this.writer.context.moveDown(rep.height);
-		}
-	}, this);
-
-	this.writer.tracker.emit('columnChanged', {
-		containerX: nextColumn.containerX,
-		containerY: nextColumn.containerY,
-		contentX: nextColumn.contentX,
-		contentY: nextColumn.contentY,
-		prevY: nextColumn.prevY,
-	});
+	// this.writer.tracker.emit('columnChanged', {
+	// 	containerX: nextColumn.containerX,
+	// 	containerY: nextColumn.containerY,
+	// 	contentX: nextColumn.contentX,
+	// 	contentY: nextColumn.contentY,
+	// 	prevY: nextColumn.prevY,
+	// });
 };
 
 PageElementWriter.prototype.moveToNextPage = function (pageOrientation) {
