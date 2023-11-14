@@ -525,9 +525,6 @@ LayoutBuilder.prototype.processRow = function (columns, widths, gaps, tableBody,
 			var column = columns[i];
 			var width = widths[i]._calcWidth;
 			var leftOffset = colLeftOffset(i);
-			var context = self.writer.context();
-			var widthOverflow = context.x + width > pageAvailableWidth
-			if (widthOverflow) console.log({ widthOverflow })
 
 			if (column.colSpan && column.colSpan > 1) {
 				for (var j = 1; j < column.colSpan; j++) {

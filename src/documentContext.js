@@ -62,8 +62,6 @@ DocumentContext.prototype.beginColumn = function (width, offset, endingCell) {
 	this.availableHeight = saved.availableHeight;
 
 	this.lastColumnWidth = width;
-	var contextWidthOverflow = this.x > this.snapshots[0].availableWidth;
-	if (contextWidthOverflow) console.log({ contextWidthOverflow })
 };
 
 DocumentContext.prototype.calculateBottomMost = function (destContext) {
@@ -234,7 +232,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	const nextColumnWidth = this.x + this.availableWidth;
 	const pageOverflow = nextColumnWidth > pageAvailableWidth
 	if (pageOverflow) return false;
-	
+
 	var prevY = this.y;
 	this.beginColumn(this.availableWidth, 0, this.endingCell)
 
@@ -264,7 +262,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 
 	// 	return [originalSnapshot, newSnapshot];
 	// });
-	
+
 	// this.snapshots = newSnapshots;
 
 	// // FIXME: Replace hardcoded values with proper variables
@@ -278,7 +276,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	// this.availableWidth = this.snapshots.at(-1).availableWidth;
 	// //this.lastColumnWidth = this.snapshots.at(-1).lastColumnWidth;
 	// //this.endingCell = this.snapshots.at(-1).endingCell;
-	
+
 	return {
 		containerX: this.snapshots.at(-1).x,
 		containerY: this.snapshots.at(-1).y,
