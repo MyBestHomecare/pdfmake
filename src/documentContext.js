@@ -228,6 +228,13 @@ var getPageSize = function (currentPage, newPageOrientation) {
 // FIXME: Complete the function
 // Write a moveToNextColumn method that will move to the next column in the current page, or the first column of the next page if the current page is full
 DocumentContext.prototype.moveToNextColumn = function () {
+
+	const pageSnapshot = this.pageSnapshot();
+	const pageAvailableWidth = pageSnapshot.availableWidth;
+	const nextColumnWidth = this.x + this.availableWidth;
+	const pageOverflow = nextColumnWidth > pageAvailableWidth
+	if (pageOverflow) return false;
+	
 	var prevY = this.y;
 	this.beginColumn(this.availableWidth, 0, this.endingCell)
 

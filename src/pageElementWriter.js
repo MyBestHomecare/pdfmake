@@ -24,8 +24,13 @@ function fitOnPage(self, addFct) {
 	const sneakyColumn = true;
 	if (!position) {
 		if (sneakyColumn) {
-			self.moveToNextColumn();
-			position = addFct(self);
+			const nextColumn = self.moveToNextColumn();
+			if (nextColumn === false) {
+				self.moveToNextPage();
+				position = addFct(self);	
+			} else {
+				position = addFct(self);
+			}
 		} else {
 			self.moveToNextPage();
 			position = addFct(self);
@@ -116,7 +121,9 @@ PageElementWriter.prototype.addFragment = function (fragment, useBlockXOffset, u
 };
 
 PageElementWriter.prototype.moveToNextColumn = function () {
+
 	var nextColumn = this.writer.context.moveToNextColumn();
+	if (nextColumn == false) return nextColumn;
 
 	this.repeatables.forEach(function (rep) {
 		rep.xOffset = nextColumn.containerX;
