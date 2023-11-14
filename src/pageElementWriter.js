@@ -26,8 +26,18 @@ function fitOnPage(self, addFct) {
 		if (sneakyColumn) {
 			const nextColumn = self.moveToNextColumn();
 			if (nextColumn === false) {
+				const context = self.writer.context;
+				const columnWidth = context.availableWidth;
+				const endingCell = context.endingCell;
+				// TODO: offset have to calculate from page snapshot, if offset set in 
+				// document definition column then in new column don't be applied.
+				const offset = undefined;
+				
+				context.completeColumnGroup();
 				self.moveToNextPage();
 				position = addFct(self);	
+				context.beginColumnGroup();
+				context.beginColumn(columnWidth, offset ,endingCell);				
 			} else {
 				position = addFct(self);
 			}
