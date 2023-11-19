@@ -229,6 +229,11 @@ var getPageSize = function (currentPage, newPageOrientation) {
 DocumentContext.prototype.moveToNextColumn = function () {
 
 	const pageSnapshot = this.pageSnapshot();
+	const currentSnapshot = this.snapshots[this.snapshots.length - 1]; 
+	
+	if (currentSnapshot.type == 'table') {
+		this.completeColumnGroup();
+	}
 	const pageAvailableWidth = pageSnapshot.availableWidth;
 	const nextColumnWidth = this.x + this.availableWidth;
 	const pageOverflow = nextColumnWidth > pageAvailableWidth
@@ -237,6 +242,11 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	var prevY = this.y;
 	var prevX = this.x;
 	this.beginColumn(this.availableWidth, 0, this.endingCell)
+
+	if (currentSnapshot.type == 'table') {
+		this.beginColumnGroup({type: 'table' });
+		this.beginColumn(currentSnapshot.availableWidth, 0, this.endingCell)
+	}
 
 	// var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
 	// 	//if (i === 0) return [originalSnapshot];
