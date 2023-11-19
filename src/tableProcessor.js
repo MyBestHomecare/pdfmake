@@ -135,6 +135,7 @@ TableProcessor.prototype.beginRow = function (rowIndex, writer) {
 
 	this.rowCallback = this.onRowBreak(rowIndex, writer);
 	writer.tracker.startTracking('pageChanged', this.rowCallback);
+	writer.tracker.startTracking('columnChanged', this.rowCallback);
 	if (this.dontBreakRows) {
 		writer.beginUnbreakableBlock();
 	}
