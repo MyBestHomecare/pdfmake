@@ -342,6 +342,7 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 	var l, i;
 	var self = this;
 	writer.tracker.stopTracking('pageChanged', this.rowCallback);
+	writer.tracker.stopTracking('columnChanged', this.rowCallback);
 	writer.context().moveDown(this.layout.paddingBottom(rowIndex, this.tableNode));
 	writer.context().availableHeight += this.reservedAtBottom;
 
