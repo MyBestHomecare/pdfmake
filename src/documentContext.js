@@ -28,7 +28,7 @@ function DocumentContext(pageSize, pageMargins) {
 	this.addPage(pageSize);
 }
 
-DocumentContext.prototype.beginColumnGroup = function () {
+DocumentContext.prototype.beginColumnGroup = function ({ type }) {
 	this.snapshots.push({
 		x: this.x,
 		y: this.y,
@@ -43,7 +43,8 @@ DocumentContext.prototype.beginColumnGroup = function () {
 			page: this.page
 		},
 		endingCell: this.endingCell,
-		lastColumnWidth: this.lastColumnWidth
+		lastColumnWidth: this.lastColumnWidth,
+		type,
 	});
 
 	this.lastColumnWidth = 0;
