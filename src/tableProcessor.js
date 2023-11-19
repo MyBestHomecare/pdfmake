@@ -353,7 +353,7 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 
 	var ys = [];
 
-	// var hasColumnBreaks = columnBreaks && columnBreaks.length > 0;
+	var hasColumnBreaks = columnBreaks && columnBreaks.length > 0;
 	var hasPageBreaks = pageBreaks && pageBreaks.length > 0;
 	var body = this.tableNode.table.body;
 
@@ -362,10 +362,10 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 		page: hasPageBreaks ? pageBreaks[0].prevPage : endingPage
 	});
 
-	// if (hasColumnBreaks) {
-	// 	ys[ys.length - 1].y1 = columnBreaks[0].prevY;
-	// 	ys.push({ y0: columnBreaks[0][this.headerRows > 0 ? 'contentY' : 'containerY'], page: ys[0].page });
-	// }
+	if (hasColumnBreaks) {
+		ys[ys.length - 1].y1 = columnBreaks[0].prevY;
+		ys.push({ y0: columnBreaks[0][this.headerRows > 0 ? 'contentY' : 'containerY'], page: ys[0].page });
+	}
 
 	if (hasPageBreaks) {
 		for (i = 0, l = pageBreaks.length; i < l; i++) {
