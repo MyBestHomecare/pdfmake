@@ -149,13 +149,14 @@ PageElementWriter.prototype.moveToNextColumn = function () {
 	// 	}
 	// }, this);
 
-	// this.writer.tracker.emit('columnChanged', {
-	// 	containerX: nextColumn.containerX,
-	// 	containerY: nextColumn.containerY,
-	// 	contentX: nextColumn.contentX,
-	// 	contentY: nextColumn.contentY,
-	// 	prevY: nextColumn.prevY,
-	// });
+	this.writer.tracker.emit('columnChanged', {
+		containerX: nextColumn.containerX,
+		containerY: nextColumn.containerY,
+		contentX: nextColumn.contentX,
+		contentY: nextColumn.contentY,
+		prevY: nextColumn.prevY,
+		prevX: nextColumn.prevX,
+	});
 };
 
 PageElementWriter.prototype.moveToNextPage = function (pageOrientation) {

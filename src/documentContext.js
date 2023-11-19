@@ -234,6 +234,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	if (pageOverflow) return false;
 
 	var prevY = this.y;
+	var prevX = this.x;
 	this.beginColumn(this.availableWidth, 0, this.endingCell)
 
 	// var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
@@ -278,11 +279,12 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	// //this.endingCell = this.snapshots.at(-1).endingCell;
 
 	return {
-		containerX: this.snapshots.at(-1).x,
-		containerY: this.snapshots.at(-1).y,
+		containerX: pageSnapshot.x,
+		containerY: pageSnapshot.y,
 		contentX: this.x,
 		contentY: this.y,
 		prevY: prevY,
+		prevX: prevX,
 	};
 };
 
