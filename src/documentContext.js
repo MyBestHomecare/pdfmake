@@ -96,7 +96,6 @@ DocumentContext.prototype.saveContextInEndingCell = function (endingCell) {
 
 DocumentContext.prototype.completeColumnGroup = function (height) {
 	var saved = this.snapshots.pop();
-	// if (saved.overflowed) this.snapshots.pop();
 
 	this.calculateBottomMost(saved);
 
@@ -229,23 +228,32 @@ var getPageSize = function (currentPage, newPageOrientation) {
 DocumentContext.prototype.moveToNextColumn = function () {
 
 	const pageSnapshot = this.pageSnapshot();
-	const currentSnapshot = this.snapshots[this.snapshots.length - 1]; 
-	
-	if (currentSnapshot.type == 'table') {
+	const currentSnapshot = this.snapshots[this.snapshots.length - 1];
+	const isTable = currentSnapshot.type == 'table';
+	let tableWidth;
+	if (isTable) {
+		tableWidth = this.availableWidth;
 		this.completeColumnGroup();
 	}
 	const pageAvailableWidth = pageSnapshot.availableWidth;
 	const nextColumnWidth = this.x + this.availableWidth;
 	const pageOverflow = nextColumnWidth > pageAvailableWidth
-	if (pageOverflow) return false;
+	if (pageOverflow) {
+		if (isTable) {
+			this.beginColumnGroup({ type: 'table' });
+			this.beginColumn(currentSnapshot.availableWidth, undefined, this.endingCell);
+		}
+		return false
+	};
 
 	var prevY = this.y;
 	var prevX = this.x;
-	this.beginColumn(this.availableWidth, 0, this.endingCell)
 
-	if (currentSnapshot.type == 'table') {
-		this.beginColumnGroup({type: 'table' });
-		this.beginColumn(currentSnapshot.availableWidth, 0, this.endingCell)
+	this.beginColumn(this.availableWidth, undefined, this.endingCell)
+
+	if (isTable) {
+		this.beginColumnGroup({ type: 'table' });
+		this.beginColumn(tableWidth, undefined, this.endingCell);
 	}
 
 	// var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
