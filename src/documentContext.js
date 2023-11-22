@@ -231,8 +231,11 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	const currentSnapshot = this.snapshots[this.snapshots.length - 1];
 	const isTable = currentSnapshot.type == 'table';
 	let tableWidth;
+	let tableOffset;
 	if (isTable) {
 		tableWidth = this.availableWidth;
+		// TODO: default offset must be replace with set value
+		tableOffset = 5
 		this.completeColumnGroup();
 	}
 	const pageAvailableWidth = pageSnapshot.availableWidth;
@@ -241,7 +244,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	if (pageOverflow) {
 		if (isTable) {
 			this.beginColumnGroup({ type: 'table' });
-			this.beginColumn(currentSnapshot.availableWidth, undefined, this.endingCell);
+			this.beginColumn(currentSnapshot.availableWidth, tableOffset, this.endingCell);
 		}
 		return false
 	};
@@ -253,7 +256,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 
 	if (isTable) {
 		this.beginColumnGroup({ type: 'table' });
-		this.beginColumn(tableWidth, undefined, this.endingCell);
+		this.beginColumn(tableWidth, tableOffset, this.endingCell);
 	}
 
 	// var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
