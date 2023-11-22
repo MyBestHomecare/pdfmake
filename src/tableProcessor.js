@@ -364,7 +364,7 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 
 	if (hasColumnBreaks) {
 		ys[ys.length - 1].y1 = columnBreaks[0].prevY;
-		ys.push({ y0: columnBreaks[0][this.headerRows > 0 ? 'contentY' : 'containerY'], page: ys[0].page });
+		ys.push({ y0: columnBreaks[0].contentY, page: ys[0].page });
 	}
 
 	if (hasPageBreaks) {
