@@ -27,17 +27,33 @@ function fitOnPage(self, addFct) {
 			const nextColumn = self.moveToNextColumn();
 			if (nextColumn === false) {
 				const context = self.writer.context;
-				const columnWidth = context.availableWidth;
-				const endingCell = context.endingCell;
 				// TODO: offset have to calculate from page snapshot, if offset set in 
 				// document definition column then in new column don't be applied.
 				const offset = undefined;
 
+				const currentSnapshot = context.snapshots[context.snapshots.length - 1];
+				const isTable = currentSnapshot.type == 'table';
+				let tableWidth;
+				let tableOffset;
+				if (isTable) {
+					tableWidth = context.availableWidth;
+					tableOffset = 5
+					context.completeColumnGroup();
+				}
+
+				const columnWidth = context.availableWidth;
+				const endingCell = context.endingCell;
+
 				context.completeColumnGroup();
 				self.moveToNextPage();
-				position = addFct(self);
 				context.beginColumnGroup({ type: 'column' });
 				context.beginColumn(columnWidth, offset, endingCell);
+				
+				if (isTable) {
+					context.beginColumnGroup({ type: 'table' });
+					context.beginColumn(tableWidth, tableOffset, endingCell);
+				}
+				position = addFct(self);
 			} else {
 				position = addFct(self);
 			}
@@ -134,7 +150,7 @@ PageElementWriter.prototype.moveToNextColumn = function () {
 
 	var nextColumn = this.writer.context.moveToNextColumn();
 	if (nextColumn == false) return nextColumn;
-	
+
 	// this.repeatables.forEach(function (rep) {
 	// 	rep.xOffset = nextColumn.containerX;
 	// 	rep.yOffset = nextColumn.containerY;
