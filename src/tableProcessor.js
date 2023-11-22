@@ -135,6 +135,7 @@ TableProcessor.prototype.beginRow = function (rowIndex, writer) {
 
 	this.rowCallback = this.onRowBreak(rowIndex, writer);
 	writer.tracker.startTracking('pageChanged', this.rowCallback);
+	writer.tracker.startTracking('columnChanged', this.rowCallback);
 	if (this.dontBreakRows) {
 		writer.beginUnbreakableBlock();
 	}
@@ -341,6 +342,7 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 	var l, i;
 	var self = this;
 	writer.tracker.stopTracking('pageChanged', this.rowCallback);
+	writer.tracker.stopTracking('columnChanged', this.rowCallback);
 	writer.context().moveDown(this.layout.paddingBottom(rowIndex, this.tableNode));
 	writer.context().availableHeight += this.reservedAtBottom;
 
@@ -362,7 +364,7 @@ TableProcessor.prototype.endRow = function (rowIndex, writer, pageBreaks, column
 
 	if (hasColumnBreaks) {
 		ys[ys.length - 1].y1 = columnBreaks[0].prevY;
-		ys.push({ y0: columnBreaks[0][this.headerRows > 0 ? 'contentY' : 'containerY'], page: ys[0].page });
+		ys.push({ y0: columnBreaks[0].contentY, page: ys[0].page });
 	}
 
 	if (hasPageBreaks) {

@@ -21,39 +21,81 @@ function PageElementWriter(context, tracker) {
 
 function fitOnPage(self, addFct) {
 	var position = addFct(self);
+	const sneakyColumn = true;
 	if (!position) {
-		// TODO: Swap the hardcoded boolean check below with an option flag inside columns
-		// eslint-disable-next-line no-constant-condition
-		if (true) {
-			if (!self.writer.context.snapshots.at(-1).overflowed) {
+		if (sneakyColumn) {
+			const nextColumn = self.moveToNextColumn();
+			if (nextColumn === false) {
+				const context = self.writer.context;
+				// TODO: offset have to calculate from page snapshot, if offset set in 
+				// document definition column then in new column don't be applied.
+				const offset = undefined;
 
-				// BUG: Only works with table columns
-				self.moveToNextColumn();
+				const currentSnapshot = context.snapshots[context.snapshots.length - 1];
+				const isTable = currentSnapshot.type == 'table';
+				let tableWidth;
+				let tableOffset;
+				if (isTable) {
+					tableWidth = context.availableWidth;
+					tableOffset = 5
+					context.completeColumnGroup();
+				}
+
+				const columnWidth = context.availableWidth;
+				const endingCell = context.endingCell;
+
+				context.completeColumnGroup();
+				self.moveToNextPage();
+				context.beginColumnGroup({ type: 'column' });
+				context.beginColumn(columnWidth, offset, endingCell);
 				
+				if (isTable) {
+					context.beginColumnGroup({ type: 'table' });
+					context.beginColumn(tableWidth, tableOffset, endingCell);
+				}
 				position = addFct(self);
 			} else {
 				position = addFct(self);
 			}
-		}
-
-
-		if (!position) {
-			while (self.writer.context.snapshots.at(-1).overflowed) {
-				var popped = self.writer.context.snapshots.pop();
-
-				var snap = self.writer.context.snapshots.at(-1);
-				self.writer.context.x = snap.x;
-				self.writer.context.y = snap.y;
-				self.writer.context.availableHeight = snap.availableHeight;
-				self.writer.context.availableWidth = popped.availableWidth;
-				self.writer.context.lastColumnWidth = snap.lastColumnWidth;
-				self.writer.context.endingCell = snap.endingCell;
-				//self.writer.context.page = snap.page;
-			}
+		} else {
 			self.moveToNextPage();
 			position = addFct(self);
 		}
 	}
+
+	// if (!position) {
+	// 	// TODO: Swap the hardcoded boolean check below with an option flag inside columns
+	// 	// eslint-disable-next-line no-constant-condition
+	// 	if (false) {
+	// 		if (!self.writer.context.snapshots.at(-1).overflowed) {
+
+	// 			// BUG: Only works with table columns
+	// 			self.moveToNextColumn();
+
+	// 			position = addFct(self);
+	// 		} else {
+	// 			position = addFct(self);
+	// 		}
+	// 	}
+
+
+	// 	if (!position) {
+	// 		// while (self.writer.context.snapshots.at(-1).overflowed) {
+	// 		// 	var popped = self.writer.context.snapshots.pop();
+
+	// 		// 	var snap = self.writer.context.snapshots.at(-1);
+	// 		// 	self.writer.context.x = snap.x;
+	// 		// 	self.writer.context.y = snap.y;
+	// 		// 	self.writer.context.availableHeight = snap.availableHeight;
+	// 		// 	self.writer.context.availableWidth = popped.availableWidth;
+	// 		// 	self.writer.context.lastColumnWidth = snap.lastColumnWidth;
+	// 		// 	self.writer.context.endingCell = snap.endingCell;
+	// 		// 	//self.writer.context.page = snap.page;
+	// 		// }
+	// 		self.moveToNextPage();
+	// 		position = addFct(self);
+	// 	}
+	// }
 	return position;
 }
 
@@ -105,21 +147,23 @@ PageElementWriter.prototype.addFragment = function (fragment, useBlockXOffset, u
 };
 
 PageElementWriter.prototype.moveToNextColumn = function () {
-	var nextColumn = this.writer.context.moveToNextColumn();
 
-	this.repeatables.forEach(function (rep) {
-		rep.xOffset = nextColumn.containerX;
-		rep.yOffset = nextColumn.containerY;
-		// FIXME: This number is currently set based on limited trial and error. Try to set it dynamically.
-		rep.height -= 1;
-		if (isUndefined(rep.insertedOnPages[this.writer.context.page])) {
-			// FIXME: Make sure the line below can be removed safely without affecting the functionality of repeatables such as table header rows.
-			//rep.insertedOnPages[this.writer.context.page] = true;
-			this.writer.addFragment(rep, true, true);
-		} else {
-			this.writer.context.moveDown(rep.height);
-		}
-	}, this);
+	var nextColumn = this.writer.context.moveToNextColumn();
+	if (nextColumn == false) return nextColumn;
+
+	// this.repeatables.forEach(function (rep) {
+	// 	rep.xOffset = nextColumn.containerX;
+	// 	rep.yOffset = nextColumn.containerY;
+	// 	// FIXME: This number is currently set based on limited trial and error. Try to set it dynamically.
+	// 	rep.height -= 1;
+	// 	if (isUndefined(rep.insertedOnPages[this.writer.context.page])) {
+	// 		// FIXME: Make sure the line below can be removed safely without affecting the functionality of repeatables such as table header rows.
+	// 		//rep.insertedOnPages[this.writer.context.page] = true;
+	// 		this.writer.addFragment(rep, true, true);
+	// 	} else {
+	// 		this.writer.context.moveDown(rep.height);
+	// 	}
+	// }, this);
 
 	this.writer.tracker.emit('columnChanged', {
 		containerX: nextColumn.containerX,
@@ -127,6 +171,7 @@ PageElementWriter.prototype.moveToNextColumn = function () {
 		contentX: nextColumn.contentX,
 		contentY: nextColumn.contentY,
 		prevY: nextColumn.prevY,
+		prevX: nextColumn.prevX,
 	});
 };
 

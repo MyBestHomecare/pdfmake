@@ -28,7 +28,7 @@ function DocumentContext(pageSize, pageMargins) {
 	this.addPage(pageSize);
 }
 
-DocumentContext.prototype.beginColumnGroup = function () {
+DocumentContext.prototype.beginColumnGroup = function ({ type }) {
 	this.snapshots.push({
 		x: this.x,
 		y: this.y,
@@ -43,7 +43,8 @@ DocumentContext.prototype.beginColumnGroup = function () {
 			page: this.page
 		},
 		endingCell: this.endingCell,
-		lastColumnWidth: this.lastColumnWidth
+		lastColumnWidth: this.lastColumnWidth,
+		type,
 	});
 
 	this.lastColumnWidth = 0;
@@ -95,7 +96,6 @@ DocumentContext.prototype.saveContextInEndingCell = function (endingCell) {
 
 DocumentContext.prototype.completeColumnGroup = function (height) {
 	var saved = this.snapshots.pop();
-	if (saved.overflowed) this.snapshots.pop();
 
 	this.calculateBottomMost(saved);
 
@@ -226,55 +226,87 @@ var getPageSize = function (currentPage, newPageOrientation) {
 // FIXME: Complete the function
 // Write a moveToNextColumn method that will move to the next column in the current page, or the first column of the next page if the current page is full
 DocumentContext.prototype.moveToNextColumn = function () {
+
+	const pageSnapshot = this.pageSnapshot();
+	const currentSnapshot = this.snapshots[this.snapshots.length - 1];
+	const isTable = currentSnapshot.type == 'table';
+	let tableWidth;
+	let tableOffset;
+	if (isTable) {
+		tableWidth = this.availableWidth;
+		// TODO: default offset must be replace with set value
+		tableOffset = 5
+		this.completeColumnGroup();
+	}
+	const pageAvailableWidth = pageSnapshot.availableWidth;
+	const nextColumnWidth = this.x + this.availableWidth;
+	const pageOverflow = nextColumnWidth > pageAvailableWidth
+	if (pageOverflow) {
+		if (isTable) {
+			this.beginColumnGroup({ type: 'table' });
+			this.beginColumn(tableWidth, tableOffset, this.endingCell);
+		}
+		return false
+	};
+
 	var prevY = this.y;
+	var prevX = this.x;
 
-	var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
-		//if (i === 0) return [originalSnapshot];
+	this.beginColumn(this.availableWidth, undefined, this.endingCell)
 
-		var newSnapshot = Object.assign({}, originalSnapshot);
-		newSnapshot.overflowed = true; // IMPORTANT
+	if (isTable) {
+		this.beginColumnGroup({ type: 'table' });
+		this.beginColumn(tableWidth, tableOffset, this.endingCell);
+	}
 
-		// FIXME: Calculate "x" and "availableWidth" properly
-		//newSnapshot.x += this.availableWidth - this.pageMargins.left; // for basic text
-		newSnapshot.x += originalSnapshot.availableWidth; // for tables
-		newSnapshot.y = allSnapshots[0].y; // 40 or 43 ???
-		newSnapshot.page = originalSnapshot.page;
-		newSnapshot.availableHeight = allSnapshots[0].availableHeight; // -6
-		newSnapshot.availableWidth = this.availableWidth;
+	// var newSnapshots = this.snapshots.flatMap((originalSnapshot, i, allSnapshots) => {
+	// 	//if (i === 0) return [originalSnapshot];
 
-		newSnapshot.bottomMost = {
-			x: newSnapshot.x,
-			y: newSnapshot.y,
-			page: newSnapshot.page,
-			availableHeight: newSnapshot.availableHeight,
-			availableWidth5: newSnapshot.availableWidth,
-		};
-		newSnapshot.endingCell = originalSnapshot.endingCell;
-		newSnapshot.lastColumnWidth = originalSnapshot.lastColumnWidth; // Flexible width?
+	// 	var newSnapshot = Object.assign({}, originalSnapshot);
+	// 	newSnapshot.overflowed = true; // IMPORTANT
 
-		return [originalSnapshot, newSnapshot];
-	});
-	
-	this.snapshots = newSnapshots;
+	// 	// FIXME: Calculate "x" and "availableWidth" properly
+	// 	//newSnapshot.x += this.availableWidth - this.pageMargins.left; // for basic text
+	// 	newSnapshot.x += originalSnapshot.availableWidth; // for tables
+	// 	newSnapshot.y = allSnapshots[0].y; // 40 or 43 ???
+	// 	newSnapshot.page = originalSnapshot.page;
+	// 	newSnapshot.availableHeight = allSnapshots[0].availableHeight; // -6
+	// 	newSnapshot.availableWidth = this.availableWidth;
 
-	// FIXME: Replace hardcoded values with proper variables
-	var yOffset = 0; // 0 for text, 3 for tables, -5 for tables with repeatble headers
-	var colLeftOffset = 0; // default = 0 for tables, 5 in LayoutBuilder
+	// 	newSnapshot.bottomMost = {
+	// 		x: newSnapshot.x,
+	// 		y: newSnapshot.y,
+	// 		page: newSnapshot.page,
+	// 		availableHeight: newSnapshot.availableHeight,
+	// 		availableWidth5: newSnapshot.availableWidth,
+	// 	};
+	// 	newSnapshot.endingCell = originalSnapshot.endingCell;
+	// 	newSnapshot.lastColumnWidth = originalSnapshot.lastColumnWidth; // Flexible width?
 
-	this.x += this.snapshots.at(-1).x + colLeftOffset;
-	this.y = this.snapshots.at(-1).y + yOffset;
-	//this.page = this.snapshots.at(-1).page;
-	this.availableHeight = this.snapshots.at(-1).availableHeight - (yOffset * 2);
-	this.availableWidth = this.snapshots.at(-1).availableWidth;
-	//this.lastColumnWidth = this.snapshots.at(-1).lastColumnWidth;
-	//this.endingCell = this.snapshots.at(-1).endingCell;
-	
+	// 	return [originalSnapshot, newSnapshot];
+	// });
+
+	// this.snapshots = newSnapshots;
+
+	// // FIXME: Replace hardcoded values with proper variables
+	// var yOffset = 0; // 0 for text, 3 for tables, -5 for tables with repeatble headers
+	// var colLeftOffset = 0; // default = 0 for tables, 5 in LayoutBuilder
+
+	// this.x += this.snapshots.at(-1).x + colLeftOffset;
+	// this.y = this.snapshots.at(-1).y + yOffset;
+	// //this.page = this.snapshots.at(-1).page;
+	// this.availableHeight = this.snapshots.at(-1).availableHeight - (yOffset * 2);
+	// this.availableWidth = this.snapshots.at(-1).availableWidth;
+	// //this.lastColumnWidth = this.snapshots.at(-1).lastColumnWidth;
+	// //this.endingCell = this.snapshots.at(-1).endingCell;
+
 	return {
-		containerX: this.snapshots.at(-1).x,
-		containerY: this.snapshots.at(-1).y,
+		containerX: pageSnapshot.x,
+		containerY: pageSnapshot.y,
 		contentX: this.x,
 		contentY: this.y,
 		prevY: prevY,
+		prevX: prevX,
 	};
 };
 
