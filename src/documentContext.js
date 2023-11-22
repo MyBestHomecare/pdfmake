@@ -244,7 +244,7 @@ DocumentContext.prototype.moveToNextColumn = function () {
 	if (pageOverflow) {
 		if (isTable) {
 			this.beginColumnGroup({ type: 'table' });
-			this.beginColumn(currentSnapshot.availableWidth, tableOffset, this.endingCell);
+			this.beginColumn(tableWidth, tableOffset, this.endingCell);
 		}
 		return false
 	};
